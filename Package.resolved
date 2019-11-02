@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "TelegramBotSDK",
+        "repositoryURL": "https://github.com/zmeyc/telegram-bot-swift.git",
+        "state": {
+          "branch": null,
+          "revision": "4d6e94eb1fcbbe1cbe5f931adc0971b9ebf8449a",
+          "version": "1.2.3"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
