@@ -26,12 +26,12 @@ class Controller {
         guard let chatId = context.chatId else { return false }
         
 		guard !started(in: chatId) else {
-            context.respondAsync("@\(bot.username) already started.")
+            context.respondAsync("@\(bot.username) уже запущен.")
             return true
         }
         startedInChatId.insert(chatId)
         
-		guard showMainMenu(context: context, text: "Please choose an option.") else { return false }
+		guard showMainMenu(context: context, text: "Выберите пункт меню:") else { return false }
         return true
     }
     
@@ -39,20 +39,21 @@ class Controller {
         guard let chatId = context.chatId else { return false }
 
         guard started(in: chatId) else {
-            context.respondAsync("@\(bot.username) already stopped.")
+            context.respondAsync("@\(bot.username) уже остановлен.")
             return true
         }
 		startedInChatId.remove(chatId)
 		
-        context.respondSync("@\(bot.username) stopped. To restart, type /start")
+        context.respondSync("@\(bot.username) остановлен. Для запуска наберите /start")
 		return true
     }
     
     func help(context: Context) -> Bool {
-        let text = "Usage:\n" +
-            "/start - to begin\n" +
-            "/stop - to end\n" +
-            "/support - join the support group\n"
+        let text = "Вы можете использовать пункты меню или набрать одну из команд:\n" +
+            "/start - для запуска бота\n" +
+            "/stop - для остановки бота\n" +
+            "/list - вывод списка доступных локаций\n" +
+            "/support - обратиться в поддержку\n"
         guard showMainMenu(context: context, text: text) else { return false }
         return true
     }
@@ -93,21 +94,21 @@ class Controller {
     
     func support(context: Context) -> Bool {
         var button = InlineKeyboardButton()
-        button.text = "Support"
+        button.text = "Поддержка"
         button.url = "t.me/MikhaylovAV"
         
         var markup = InlineKeyboardMarkup()
         let keyboard = [[button]]
         markup.inlineKeyboard = keyboard
 
-        context.respondAsync("Please click the button below to join *Espresso Bot Support* group.", parseMode: "Markdown", replyMarkup: markup)
+        context.respondAsync("Нажмите кнопку для связи с поддержкой *EspressoBot Support*.", parseMode: "Markdown", replyMarkup: markup)
 
         return true
     }
     
     func list(context: Context) -> Bool {
         guard let markup = itemListInlineKeyboardMarkup(context: context) else { return false }
-        context.respondAsync("Item List:",
+        context.respondAsync("Список доступных локаций:",
                              replyMarkup: markup)
         return true
     }
@@ -151,9 +152,9 @@ class Controller {
         if #available(OSX 10.15, *) {
             guard let itemId = scanner.scanInt64() else { return false }
             context.respondAsync("Вы выбрали: \(itemId)")
-        } else {
-                  // Fallback on earlier versions
-              }
+        } else {// Fallback on earlier versions
+            
+        }
         
         if let markup = itemListInlineKeyboardMarkup(context: context) {
             bot.editMessageReplyMarkupAsync(chatId: chatId, messageId: messageId, replyMarkup: markup)
