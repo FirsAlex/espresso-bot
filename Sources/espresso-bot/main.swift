@@ -50,6 +50,8 @@ class Controller {
     }
     
     func help(context: Context) -> Bool {
+        guard let chatId = context.chatId else { return false }
+        guard started(in: chatId) else { return false }
         let text = "Вы можете использовать пункты меню или набрать одну из команд:\n" +
             "/start - для запуска бота\n" +
             "/stop - для остановки бота\n" +
@@ -92,6 +94,8 @@ class Controller {
        }
     
     func support(context: Context) -> Bool {
+        guard let chatId = context.chatId else { return false }
+        guard started(in: chatId) else { return false }
         var button = InlineKeyboardButton()
         button.text = "Поддержка"
         button.url = "t.me/MikhaylovAV"
@@ -106,6 +110,8 @@ class Controller {
     }
     
     func list(context: Context) -> Bool {
+        guard let chatId = context.chatId else { return false }
+        guard started(in: chatId) else { return false }
         guard let markup = itemListInlineKeyboardMarkup(context: context) else { return false }
         context.respondAsync("Список доступных локаций:",
                              replyMarkup: markup)
