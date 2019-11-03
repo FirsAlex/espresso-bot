@@ -24,14 +24,15 @@ class Controller {
     
 	func start(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
-        
-		guard !started(in: chatId) else {
+        guard showMainMenu(context: context, text: "Выберите пункт меню:") else { return false }
+		
+        guard !started(in: chatId) else {
             context.respondAsync("@\(bot.username) уже запущен.")
             return true
         }
         startedInChatId.insert(chatId)
         
-		guard showMainMenu(context: context, text: "Выберите пункт меню:") else { return false }
+		
         return true
     }
     
