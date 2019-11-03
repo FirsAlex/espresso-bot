@@ -82,7 +82,7 @@ class Controller {
            markup.resizeKeyboard = true
            markup.selective = replyTo != nil
            markup.keyboardStrings = [
-               [ Commands.add[0], Commands.list[0], Commands.delete[0] ],
+               [ Commands.add[0], Commands.list[0] ],
                [ Commands.help[0], Commands.support[0] ]
            ]
            context.respondAsync(text,
@@ -113,7 +113,6 @@ class Controller {
     }
     
     func itemListInlineKeyboardMarkup(context: Context) -> InlineKeyboardMarkup? {
-        //guard let chatId = context.chatId else { return nil }
         let items: [String] = ["1.  Москва: Летниковская",
                                "2.  Москва: Спартаковская",
                                "3.  Москва: Котельническая",
