@@ -12,9 +12,6 @@ struct Commands {
     static let stop = "stop"
     static let help = ["ℹ️ Помощь", "help"]
     static let add = ["☕ Выпить кофе", "add"]
-    static let delete = ["⛔️ Delete", "delete"]
     static let list = ["🌐 Выбрать локацию", "list"]
     static let support = ["✉️ Поддержка", "support"]
-    static let cancel = ["↩️ Cancel", "cancel"]
-    static let confirmDeletion = ["⛔️ Confirm Deletion", "confirm_deletion"]
 }

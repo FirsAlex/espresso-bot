@@ -104,7 +104,8 @@ class Controller {
         let keyboard = [[button]]
         markup.inlineKeyboard = keyboard
 
-        context.respondAsync("Нажмите кнопку для связи с поддержкой *EspressoBot Support*.", parseMode: "Markdown", replyMarkup: markup)
+        context.respondAsync("Нажмите кнопку для связи с поддержкой *EspressoBot Support*.",
+                             parseMode: "Markdown", replyMarkup: markup)
 
         return true
     }
@@ -113,8 +114,7 @@ class Controller {
         guard let chatId = context.chatId else { return false }
         guard started(in: chatId) else { return false }
         guard let markup = itemListInlineKeyboardMarkup(context: context) else { return false }
-        context.respondAsync("Список доступных локаций:",
-                             replyMarkup: markup)
+        context.respondAsync("Список доступных локаций:", replyMarkup: markup)
         return true
     }
     
