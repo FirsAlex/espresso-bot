@@ -68,9 +68,7 @@ class Controller {
         guard let chatId = context.chatId else { return false }
 		guard started(in: chatId) else { return false }
 		
-        let text = context.args.scanRestOfString()
-	
-        context.respondAsync(String(text.reversed()))
+        context.respondAsync("Подписано \(startedInChatId.count) пользователей.")
 		return true
     }
     
@@ -143,23 +141,17 @@ class Controller {
     
      func onCallbackQuery(context: Context) throws -> Bool {
         guard let callbackQuery = context.update.callbackQuery else { return false }
-        guard let chatId = callbackQuery.message?.chat.id else { return false }
-        guard let messageId = callbackQuery.message?.messageId else { return false }
         guard let data = callbackQuery.data else { return false }
         let scanner = Scanner(string: data)
 
         // "toggle 1234567"
         guard scanner.skipString("toggle ") else { return false }
-        if #available(OSX 10.15, *) {
-            guard let itemId = scanner.scanInt64() else { return false }
-            context.respondAsync("Вы выбрали: \(itemId)")
-        } else {// Fallback on earlier versions
-            
-        }
+            if #available(OSX 10.15, *) {
+                guard let itemId = scanner.scanInt64() else { return false }
+                context.respondAsync("Вы выбрали: \(itemId)")
+            } else {// Fallback on earlier versions
+            }
         
-        if let markup = itemListInlineKeyboardMarkup(context: context) {
-            bot.editMessageReplyMarkupAsync(chatId: chatId, messageId: messageId, replyMarkup: markup)
-        }
         return true
     }
 }
