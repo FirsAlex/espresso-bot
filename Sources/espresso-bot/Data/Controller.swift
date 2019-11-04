@@ -99,7 +99,30 @@ class Controller {
     func list(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
         guard db.UsersContains(chatId) else { return false }
-        guard let markup = itemListInlineKeyboardMarkup(context: context) else { return false }
+        
+        let items: [String] = ["Москва: Летниковская",
+                               "Москва: Спартаковская",
+                               "Москва: Котельническая",
+                               "Москва: Электрозаводская",
+                               "Саратов: Орджоникидзе",
+                               "Саратов: Шелковичная",
+                               "Новосибирск: Добролюбова",
+                               "Новосибирск: Кирова",
+                               "Казань: Лево-Булачная",
+                               "Екатеринбург: Толмачева",
+                               "Хабаровск: Амурский бульвар",
+                               "Ханты-Мансийск: Мира"]
+        var keyboard = [[InlineKeyboardButton]]()
+        
+        for item in items {
+            var button = InlineKeyboardButton()
+            button.text = item
+            button.callbackData = "toggle \(item.split(separator: ".").first ?? "0")"
+            keyboard.append([button])
+        }
+        
+        var markup = InlineKeyboardMarkup()
+        markup.inlineKeyboard = keyboard
         context.respondAsync("Список доступных локаций:", replyMarkup: markup)
         return true
     }
@@ -121,33 +144,6 @@ class Controller {
                replyToMessageId: replyTo, // ok to pass nil, it will be ignored
                replyMarkup: markup)
            return true
-    }
-    
-    func itemListInlineKeyboardMarkup(context: Context) -> InlineKeyboardMarkup? {
-        let items: [String] = ["1.  Москва: Летниковская",
-                               "2.  Москва: Спартаковская",
-                               "3.  Москва: Котельническая",
-                               "4.  Москва: Электрозаводская",
-                               "5.  Саратов: Орджоникидзе",
-                               "6.  Саратов: Шелковичная",
-                               "7.  Новосибирск: Добролюбова",
-                               "8.  Новосибирск: Кирова",
-                               "9.  Казань: Лево-Булачная",
-                               "10. Екатеринбург: Толмачева",
-                               "11. Хабаровск: Амурский бульвар",
-                               "12. Ханты-Мансийск: Мира"]
-        
-        var keyboard = [[InlineKeyboardButton]]()
-        for item in items {
-            var button = InlineKeyboardButton()
-            button.text = item
-            button.callbackData = "toggle \(item.split(separator: ".").first ?? "0")"
-            keyboard.append([button])
-        }
-        
-        var markup = InlineKeyboardMarkup()
-        markup.inlineKeyboard = keyboard
-        return markup
     }
     
      func onCallbackQuery(context: Context) throws -> Bool {
