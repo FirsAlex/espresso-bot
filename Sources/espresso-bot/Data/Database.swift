@@ -39,6 +39,7 @@ class Database {
     
     func deleteRowUsers(_ vId: Int64) -> Bool {
         let user = users.filter(id == vId)
+        
         do {
             if try connect.run(user.delete()) > 0 {
                 print("Deleted User ID: \(vId)")
@@ -53,15 +54,14 @@ class Database {
     }
     
     func UsersContains(_ vId: Int64) -> Bool{
+        let user = users.filter(id == vId)
         do {
-            for _ in try connect.prepare(users.where(id == vId)) {
-                return true
-            }
+            let count = try connect.scalar(user.count)
+            return (count == 0) ? false : true
         }
         catch {
             return false
         }
-        return false
     }
     
 }
