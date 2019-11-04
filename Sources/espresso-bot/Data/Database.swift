@@ -23,9 +23,9 @@ class Database {
         }
     }
     
-    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vLocation: Int64 = 0) -> Bool {
+    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vCodeLocation: Int64 = 0) -> Bool {
         do {
-            try connect.run(users.insert(id <- vId, first_name <- vFirst_name, last_name <- vLast_name, location <- vLocation))
+            try connect.run(users.insert(id <- vId, first_name <- vFirst_name, last_name <- vLast_name, location <- vCodeLocation))
             return true
         } catch let Result.error(message, code, nil) {
             print("Failed addRowUsers: \(message), code: \(code)")
@@ -34,6 +34,17 @@ class Database {
         catch let error {
             print("Failed addRowUsers: \(error)")
             return false
+        }
+    }
+    
+    func addRowReferenceLocations(_ vCode: Int64,_ vLocation: String) {
+        do {
+            try connect.run(locations.insert(code <- vCode, name_location <- vLocation))
+        } catch let Result.error(message, code, nil) {
+            print("Failed addRowLocations: \(message), code: \(code)")
+        }
+        catch let error {
+            print("Failed addRowLocations: \(error)")
         }
     }
     
@@ -53,7 +64,7 @@ class Database {
         }
     }
     
-    func UsersContains(_ vId: Int64) -> Bool{
+    func usersContains(_ vId: Int64) -> Bool{
         let user = users.filter(id == vId)
         do {
             let count = try connect.scalar(user.count)
@@ -63,5 +74,19 @@ class Database {
             return false
         }
     }
+    
+    func updateLocationUsers(_ vId: Int64, _ vNameLocation: String) -> Bool {
+        let user = users.filter(id == vId)
+        let loc = locations.filter(name_location == vNameLocation)
+        do {
+            for codes in try connect.prepare(loc){
+                try connect.run(user.update(location <- codes[code]))
+            }
+       } catch {
+           print("updated failed: \(error)")
+           return false
+       }
+        return true
+   }
     
 }

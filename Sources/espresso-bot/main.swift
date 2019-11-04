@@ -24,34 +24,42 @@ router[Commands.list] = controller.list
 router[.callback_query(data: nil)] = controller.onCallbackQuery
 
 // Default handler
-router.unmatched = controller.reverseText
+router.unmatched = controller.Text
 // If command has unprocessed arguments, report them:
 router.partialMatch = controller.partialMatchHandler
 
 let db = Database()
 let connect = db.connection!
 connect.busyTimeout = 5
+var i: Int64 = 1
 
 let users = Table("users")
 let id = Expression<Int64>("id")
 let first_name = Expression<String?>("first_name")
 let last_name = Expression<String?>("last_name")
 let location = Expression<Int64>("location")
+
+let locations = Table("reference_locations")
+let code = Expression<Int64>("code")
+let name_location = Expression<String>("name_location")
+
 try connect.run(users.create(ifNotExists: true) { t in
     t.column(id, primaryKey: true)
     t.column(first_name)
     t.column(last_name)
     t.column(location)
 })
-
-let locations = Table("reference_locations")
-let code = Expression<Int64>("code")
-let name_location = Expression<String>("name_location")
 try connect.run(locations.create(ifNotExists: true) { t in
     t.column(code, primaryKey: true)
     t.column(name_location, unique: true)
 })
+try connect.run(locations.delete())
 
+for item in locationsList {
+    db.addRowReferenceLocations(i, item)
+    i+=1
+}
+    
 print("Ready to accept commands")
 while let update = bot.nextUpdateSync() {
 	print("update: \(update.debugDescription)")

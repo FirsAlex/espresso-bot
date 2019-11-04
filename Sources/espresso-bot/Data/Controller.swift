@@ -21,7 +21,7 @@ class Controller {
         guard let chatId = context.chatId else { return false }
         guard showMainMenu(context: context, text: "Выберите пункт меню:") else { return false }
         
-        guard !db.UsersContains(chatId) else {
+        guard !db.usersContains(chatId) else {
             context.respondAsync("@\(bot.username) уже запущен.")
             return true
         }
@@ -34,7 +34,7 @@ class Controller {
     func stop(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
 
-        guard db.UsersContains(chatId) else {
+        guard db.usersContains(chatId) else {
             context.respondAsync("@\(bot.username) уже остановлен.")
             return true
         }
@@ -46,7 +46,7 @@ class Controller {
     
     func help(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
-        guard db.UsersContains(chatId) else { return false }
+        guard db.usersContains(chatId) else { return false }
         let text = "Вы можете использовать пункты меню или набрать одну из команд:\n" +
             "/start - для запуска бота\n" +
             "/stop - для остановки бота\n" +
@@ -61,9 +61,9 @@ class Controller {
         return true
     }
 
-    func reverseText(context: Context) -> Bool {
+    func Text(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
-        guard db.UsersContains(chatId) else { return false }
+        guard db.usersContains(chatId) else { return false }
         
         do {
             for user in try connect.prepare(users) {
@@ -81,7 +81,7 @@ class Controller {
     
     func support(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
-        guard db.UsersContains(chatId) else { return false }
+        guard db.usersContains(chatId) else { return false }
         var button = InlineKeyboardButton()
         button.text = "Поддержка"
         button.url = "t.me/MikhaylovAV"
@@ -98,27 +98,20 @@ class Controller {
     
     func list(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
-        guard db.UsersContains(chatId) else { return false }
-        
-        let items: [String] = ["Москва: Летниковская",
-                               "Москва: Спартаковская",
-                               "Москва: Котельническая",
-                               "Москва: Электрозаводская",
-                               "Саратов: Орджоникидзе",
-                               "Саратов: Шелковичная",
-                               "Новосибирск: Добролюбова",
-                               "Новосибирск: Кирова",
-                               "Казань: Лево-Булачная",
-                               "Екатеринбург: Толмачева",
-                               "Хабаровск: Амурский бульвар",
-                               "Ханты-Мансийск: Мира"]
+        guard db.usersContains(chatId) else { return false }
         var keyboard = [[InlineKeyboardButton]]()
+        var button = InlineKeyboardButton()
         
-        for item in items {
-            var button = InlineKeyboardButton()
-            button.text = item
-            button.callbackData = "toggle \(item.split(separator: ".").first ?? "0")"
-            keyboard.append([button])
+        do {
+            for item in try connect.prepare(locations) {
+                button.text = item[name_location]
+                button.callbackData = item[name_location]
+                keyboard.append([button])
+            }
+        }
+        catch {
+            print("Failed out list Locations")
+            return false
         }
         
         var markup = InlineKeyboardMarkup()
@@ -149,16 +142,10 @@ class Controller {
      func onCallbackQuery(context: Context) throws -> Bool {
         guard let callbackQuery = context.update.callbackQuery else { return false }
         guard let data = callbackQuery.data else { return false }
-        let scanner = Scanner(string: data)
-
-        // "toggle 1234567"
-        guard scanner.skipString("toggle ") else { return false }
-            if #available(OSX 10.15, *) {
-                guard let itemId = scanner.scanInt64() else { return false }
-                context.respondAsync("Вы выбрали: \(itemId)")
-            } else {// Fallback on earlier versions
-            }
+        guard let chatId = context.chatId else { return false }
         
+        guard db.updateLocationUsers(chatId, data) else { return false }
+        context.respondAsync("Вы выбрали: \(data)")
         return true
     }
 }
