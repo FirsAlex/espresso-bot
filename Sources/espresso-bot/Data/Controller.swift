@@ -11,7 +11,6 @@ import SQLite
 
 class Controller {
     let bot: TelegramBot
-    var startedInChatId = Set<Int64>()
 
     init(bot: TelegramBot) {
         self.bot = bot
@@ -61,15 +60,30 @@ class Controller {
         return true
     }
 
-    func Text(context: Context) -> Bool {
+    func add(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
         guard db.usersContains(chatId) else { return false }
+        var toId: [String:AnyObject] = [:]
+        var arrayUser: [[String:AnyObject]] = []
+        let locateuser: Int64 = db.getLocationUsersCode(chatId)
+        let locatename: String? = db.getLocationUsersName(locateuser)
+        
+        let allusers = users.filter(id != chatId).filter(location == locateuser)
         
         do {
-            for user in try connect.prepare(users) {
-                context.respondAsync("id: \(user[id]), first_name: \(user[first_name] ?? "" )," +
-                                    " last_name: \(user[last_name] ?? ""), location: \(user[location])")
+            guard try connect.scalar(allusers.count) != 0 else {
+                context.respondAsync("В вашей локации '\(locatename ?? "<нет локации у пользователя>")' нет подписчиков ")
+                return true
             }
+            
+            for user in try connect.prepare(allusers) {
+                arrayUser.append(["id" : user[id] as AnyObject, "name" : ((user[first_name] ?? "") + " " + (user[last_name] ?? "")) as AnyObject])
+            }
+            toId = arrayUser.randomElement()!
+            
+            context.respondAsync("Вы выбрали выпить кофе с : <\(toId["name"] as! String)> дождитесь от него ответа")
+            bot.forwardMessageAsync(chatId: chatId, fromChatId: toId["id"] as! Int64, messageId: context.message!.messageId)
+            bot.forwardMessageAsync(chatId: toId["id"] as! Int64, fromChatId: chatId, messageId: context.message!.messageId)
         }
         catch {
             print("Failed out list Users")

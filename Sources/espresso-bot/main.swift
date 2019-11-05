@@ -16,15 +16,18 @@ let bot = TelegramBot(token: token)
 let controller = Controller(bot: bot)
 let router = Router(bot: bot)
 
+
 router[Commands.start] = controller.start
 router[Commands.stop] = controller.stop
 router[Commands.help] = controller.help
 router[Commands.support] = controller.support
 router[Commands.list] = controller.list
 router[.callback_query(data: nil)] = controller.onCallbackQuery
+router[Commands.add] = controller.add
 
 // Default handler
-router.unmatched = controller.Text
+//router.unmatched = controller.Text
+//router.unsupportedContentType = controller.Text
 // If command has unprocessed arguments, report them:
 router.partialMatch = controller.partialMatchHandler
 
@@ -61,6 +64,7 @@ for item in locationsList {
 }
     
 print("Ready to accept commands")
+
 while let update = bot.nextUpdateSync() {
 	print("update: \(update.debugDescription)")
 	

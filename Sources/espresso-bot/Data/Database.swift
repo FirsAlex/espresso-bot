@@ -89,4 +89,30 @@ class Database {
         return true
    }
     
+    func getLocationUsersCode(_ vId: Int64) -> Int64 {
+        let user = users.filter(id == vId)
+        do {
+            for codes in try connect.prepare(user){
+                return codes[location]
+            }
+       } catch {
+           print("updated failed: \(error)")
+           return -1
+       }
+        return -2
+   }
+    
+    func getLocationUsersName(_ vCode: Int64) -> String? {
+         let locname = locations.filter(code == vCode)
+         do {
+             for name in try connect.prepare(locname){
+                 return name[name_location]
+             }
+        } catch {
+            print("updated failed: \(error)")
+            return nil
+        }
+         return nil
+    }
+    
 }
