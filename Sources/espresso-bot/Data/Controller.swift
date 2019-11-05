@@ -65,18 +65,18 @@ class Controller {
         guard db.usersContains(chatId) else { return false }
         var toId: [String:AnyObject] = [:]
         var arrayUser: [[String:AnyObject]] = []
-        let locateuser: Int64 = db.getLocationUsersCode(chatId)
-        let locatename: String? = db.getLocationUsersName(locateuser)
+        let locateUser: Int64 = db.getLocationUsersCode(chatId)
+        let locateName: String? = db.getLocationUsersName(locateUser)
         
-        let allusers = users.filter(id != chatId).filter(location == locateuser)
+        let allUsers = users.filter(id != chatId).filter(location == locateUser)
         
         do {
-            guard try connect.scalar(allusers.count) != 0 else {
-                context.respondAsync("В вашей локации '\(locatename ?? "<нет локации у пользователя>")' нет подписчиков ")
+            guard try connect.scalar(allUsers.count) != 0 else {
+                context.respondAsync("В вашей локации '\(locateName ?? "<нет локации у пользователя>")' нет подписчиков ")
                 return true
             }
             
-            for user in try connect.prepare(allusers) {
+            for user in try connect.prepare(allUsers) {
                 arrayUser.append(["id" : user[id] as AnyObject, "name" : ((user[first_name] ?? "") + " " + (user[last_name] ?? "")) as AnyObject])
             }
             toId = arrayUser.randomElement()!
