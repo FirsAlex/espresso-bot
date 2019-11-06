@@ -1,1 +1,1 @@
-web: ./espresso-bot
+web: espresso-bot
