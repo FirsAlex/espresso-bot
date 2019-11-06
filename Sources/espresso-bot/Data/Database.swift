@@ -14,8 +14,8 @@ class Database {
     
     init(){
         do {
-            let dbPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/DB.db"
-            self.connection = try Connection(dbPath)
+            //let dbPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/DB.db"
+            self.connection = try Connection("DATABASE")
         } catch {
             self.connection = nil
             let nserror = error as NSError
