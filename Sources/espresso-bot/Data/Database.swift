@@ -23,10 +23,10 @@ class Database {
         }
     }
     
-    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vUserName: String?,_ vCodeLocation: Int64 = 0) -> Bool {
+    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vUserName: String?,_ vCodeLocation: Int64 = 0,_ vTime: String? = nil) -> Bool {
         do {
             try connect.run(users.insert(id <- vId, first_name <- vFirst_name, last_name <- vLast_name, username <- vUserName,
-                                         location <- vCodeLocation))
+                                         location <- vCodeLocation, time <- vTime))
             return true
         } catch let Result.error(message, code, nil) {
             print("Failed addRowUsers: \(message), code: \(code)")
@@ -90,6 +90,17 @@ class Database {
         return true
    }
     
+   func updateTimeUsers(_ vId: Int64, _ vTime: String) -> Bool {
+       let user = users.filter(id == vId)
+       do {
+        try connect.run(user.update(time <- vTime))
+      } catch {
+          print("updated failed: \(error)")
+          return false
+      }
+       return true
+  }
+    
     func getLocationUsersCode(_ vId: Int64) -> Int64 {
         let user = users.filter(id == vId)
         do {
@@ -116,4 +127,16 @@ class Database {
          return nil
     }
     
+    func getCofeTime(_ vId: Int64) -> String? {
+         let user = users.filter(id == vId)
+         do {
+             for times in try connect.prepare(user){
+                 return times[time]
+             }
+        } catch {
+            print("updated failed: \(error)")
+            return nil
+        }
+         return nil
+    }
 }

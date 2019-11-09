@@ -19,7 +19,7 @@ class Controller {
     func start(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
         
-        guard !(context.message?.chat.username!.isEmpty)! else {
+        guard (context.message?.chat.username != nil) else {
             context.respondAsync("Задайте никнейм в настройках Telegram!")
             return true
         }
@@ -74,32 +74,44 @@ class Controller {
         var arrayUser: [[String:AnyObject]] = []
         let locateUser: Int64 = db.getLocationUsersCode(chatId)
         let locateName: String? = db.getLocationUsersName(locateUser)
+        let timeUser: String? = db.getCofeTime(chatId)
         
-        let allUsers = users.filter(id != chatId).filter(location == locateUser)
         var button = InlineKeyboardButton()
         
+        var allUsers = users.filter(id != chatId).filter(location == locateUser)
+        
         do {
-            guard try connect.scalar(allUsers.count) != 0 else {
+            if try connect.scalar(allUsers.count) != 0 && locateName != nil {
+                
+                allUsers = users.filter(id != chatId).filter(location == locateUser).filter(time == timeUser)
+                
+                if try connect.scalar(allUsers.count) == 0 {
+                    allUsers = users.filter(id != chatId).filter(location == locateUser)
+                }
+                
+                for user in try connect.prepare(allUsers) {
+                    arrayUser.append(["id" : user[id] as AnyObject, "first_name" : ((user[first_name] ?? "")) as AnyObject,
+                                      "last_name" : ((user[last_name] ?? "")) as AnyObject,
+                                      "username" : ((user[username] ?? "")) as AnyObject])
+                }
+                toId = arrayUser.randomElement()!
+                button.text = "Перейти в чат к: \(toId["first_name"] as! String) \(toId["last_name"] as! String)"
+                button.url = "t.me/\(toId["username"] as! String)"
+                var markup = InlineKeyboardMarkup()
+                let keyboard = [[button]]
+                markup.inlineKeyboard = keyboard
+                
+                context.respondAsync("Вы выбрали выпить кофе с : *\(toId["first_name"] as! String) \(toId["last_name"] as! String)*",
+                parseMode: "Markdown", replyMarkup: markup)
+                bot.forwardMessageAsync(chatId: toId["id"] as! Int64, fromChatId: chatId, messageId: context.message!.messageId)
+                bot.sendMessageAsync(chatId: toId["id"] as! Int64, text: timeUser ?? "В любоне время")
+            
+            }
+            else {
                 context.respondAsync("В вашей локации '\(locateName ?? "<нет локации у пользователя>")' нет подписчиков ")
                 return true
             }
-            
-            for user in try connect.prepare(allUsers) {
-                arrayUser.append(["id" : user[id] as AnyObject, "first_name" : ((user[first_name] ?? "")) as AnyObject,
-                                  "last_name" : ((user[last_name] ?? "")) as AnyObject,
-                                  "username" : ((user[username] ?? "")) as AnyObject])
-            }
-            toId = arrayUser.randomElement()!
-            button.text = "Перейти в чат к: \(toId["first_name"] as! String) \(toId["last_name"] as! String)"
-            button.url = "t.me/\(toId["username"] as! String)"
-            var markup = InlineKeyboardMarkup()
-            let keyboard = [[button]]
-            markup.inlineKeyboard = keyboard
-            
-            context.respondAsync("Вы выбрали выпить кофе с : *\(toId["first_name"] as! String) \(toId["last_name"] as! String)*",
-                                    parseMode: "Markdown", replyMarkup: markup)
-    
-            bot.forwardMessageAsync(chatId: toId["id"] as! Int64, fromChatId: chatId, messageId: context.message!.messageId)
+                
         }
         catch {
             print("Failed out list Users")
@@ -134,7 +146,7 @@ class Controller {
         do {
             for item in try connect.prepare(locations) {
                 button.text = item[name_location]
-                button.callbackData = item[name_location]
+                button.callbackData = "location!" + item[name_location]
                 keyboard.append([button])
             }
         }
@@ -160,8 +172,9 @@ class Controller {
            markup.selective = replyTo != nil
            markup.keyboardStrings = [
                [ Commands.add[0], Commands.list[0] ],
-               [ Commands.help[0], Commands.support[0] ]
-           ]
+               [Commands.timeCofe[0]],
+               [ Commands.help[0], Commands.support[0] ]]
+        
            context.respondAsync(text,
                replyToMessageId: replyTo, // ok to pass nil, it will be ignored
                replyMarkup: markup)
@@ -173,8 +186,32 @@ class Controller {
         guard let data = callbackQuery.data else { return false }
         guard let chatId = context.chatId else { return false }
         
-        guard db.updateLocationUsers(chatId, data) else { return false }
-        context.respondAsync("Вы выбрали: \(data)")
+        if data.contains("location"){
+            guard db.updateLocationUsers(chatId, String(data.split(separator: "!")[1])) else { return false }
+        }
+        else if data.contains("time"){
+            guard db.updateTimeUsers(chatId, String(data.split(separator: "!")[1])) else { return false }
+        }
+        
+        context.respondAsync("Вы выбрали: \(data.split(separator: "!")[1])")
+        return true
+    }
+    
+    func timeList(context: Context) -> Bool {
+        guard let chatId = context.chatId else { return false }
+        guard db.usersContains(chatId) else { return false }
+        var keyboard = [[InlineKeyboardButton]]()
+        var button = InlineKeyboardButton()
+        
+            for item in timeListName {
+                button.text = item
+                button.callbackData = "time!" + item
+                keyboard.append([button])
+            }
+
+        var markup = InlineKeyboardMarkup()
+        markup.inlineKeyboard = keyboard
+        context.respondAsync("Список доступного времени для приглашения на кофе:", replyMarkup: markup)
         return true
     }
 }
