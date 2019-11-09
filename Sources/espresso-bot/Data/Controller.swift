@@ -19,7 +19,7 @@ class Controller {
     func start(context: Context) -> Bool {
         let words = context.args.scanWords()
         if !((words.count == 1)  && (words[0] == Password)) {
-            context.respondAsync("Неправильный пароль при регистрации!")
+            guard help(context: context) else { return false }
             return true
         }
         
