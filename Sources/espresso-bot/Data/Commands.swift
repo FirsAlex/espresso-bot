@@ -7,8 +7,10 @@
 
 import Foundation
 
+let Password: String = "12345"
+
 struct Commands {
-    static let start = "start 12345"
+    static let start = "start"
     static let stop = "stop"
     static let help = ["ℹ️ Помощь", "help"]
     static let add = ["☕ Выпить кофе", "add"]

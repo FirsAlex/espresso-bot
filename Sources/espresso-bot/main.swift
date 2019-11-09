@@ -29,8 +29,8 @@ router[.callback_query(data: nil)] = controller.onCallbackQuery
 router[Commands.add] = controller.add
 
 // Default handler
-//router.unmatched = controller.Text
-//router.unsupportedContentType = controller.Text
+router.unmatched = controller.help
+router.unsupportedContentType = controller.help
 // If command has unprocessed arguments, report them:
 router.partialMatch = controller.partialMatchHandler
 

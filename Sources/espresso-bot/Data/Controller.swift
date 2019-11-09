@@ -17,6 +17,12 @@ class Controller {
     }
     
     func start(context: Context) -> Bool {
+        let words = context.args.scanWords()
+        if !((words.count == 1)  && (words[0] == Password)) {
+            context.respondAsync("Неправильный пароль при регистрации!")
+            return true
+        }
+        
         guard let chatId = context.chatId else { return false }
         
         guard (context.message?.chat.username != nil) else {
@@ -51,13 +57,9 @@ class Controller {
     }
     
     func help(context: Context) -> Bool {
-        guard let chatId = context.chatId else { return false }
-        guard db.usersContains(chatId) else { return false }
         let text = "Вы можете использовать пункты меню или набрать одну из команд:\n" +
-            "/start - для запуска бота\n" +
-            "/stop - для остановки бота\n" +
-            "/list - вывод списка доступных локаций\n" +
-            "/support - обратиться в поддержку\n"
+            "/start <пароль регистрации> - для запуска бота\n" +
+            "/stop - для остановки бота\n"
         guard showMainMenu(context: context, text: text) else { return false }
         return true
     }

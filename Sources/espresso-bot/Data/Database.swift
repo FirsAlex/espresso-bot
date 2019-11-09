@@ -84,7 +84,7 @@ class Database {
                 try connect.run(user.update(location <- codes[code]))
             }
        } catch {
-           print("updated failed: \(error)")
+           print("updateLocationUsers failed: \(error)")
            return false
        }
         return true
@@ -95,7 +95,7 @@ class Database {
        do {
         try connect.run(user.update(time <- vTime))
       } catch {
-          print("updated failed: \(error)")
+          print("updateTimeUsers failed: \(error)")
           return false
       }
        return true
@@ -108,7 +108,7 @@ class Database {
                 return codes[location]
             }
        } catch {
-           print("updated failed: \(error)")
+           print("getLocationUsersCode failed: \(error)")
            return -1
        }
         return -2
@@ -121,7 +121,7 @@ class Database {
                  return name[name_location]
              }
         } catch {
-            print("updated failed: \(error)")
+            print("getLocationUsersName failed: \(error)")
             return nil
         }
          return nil
@@ -134,7 +134,7 @@ class Database {
                  return times[time]
              }
         } catch {
-            print("updated failed: \(error)")
+            print("getCofeTime failed: \(error)")
             return nil
         }
          return nil
