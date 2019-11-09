@@ -104,7 +104,7 @@ class Controller {
                 context.respondAsync("Вы выбрали выпить кофе с : *\(toId["first_name"] as! String) \(toId["last_name"] as! String)*",
                 parseMode: "Markdown", replyMarkup: markup)
                 bot.forwardMessageAsync(chatId: toId["id"] as! Int64, fromChatId: chatId, messageId: context.message!.messageId)
-                bot.sendMessageAsync(chatId: toId["id"] as! Int64, text: timeUser ?? "В любоне время")
+                bot.sendMessageAsync(chatId: toId["id"] as! Int64, text: timeUser ?? "В любое время")
             
             }
             else {
