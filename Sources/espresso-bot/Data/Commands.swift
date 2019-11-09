@@ -8,7 +8,7 @@
 import Foundation
 
 struct Commands {
-    static let start = "start"
+    static let start = "start 12345"
     static let stop = "stop"
     static let help = ["ℹ️ Помощь", "help"]
     static let add = ["☕ Выпить кофе", "add"]

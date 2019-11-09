@@ -18,6 +18,12 @@ class Controller {
     
     func start(context: Context) -> Bool {
         guard let chatId = context.chatId else { return false }
+        
+        guard !(context.message?.chat.username!.isEmpty)! else {
+            context.respondAsync("Задайте никнейм в настройках Telegram!")
+            return true
+        }
+        
         guard showMainMenu(context: context, text: "Выберите пункт меню:") else { return false }
         
         guard !db.usersContains(chatId) else {
@@ -25,7 +31,8 @@ class Controller {
             return true
         }
         
-       guard db.addRowUsers(chatId, context.message?.chat.firstName, context.message?.chat.lastName) else { return false }
+        guard db.addRowUsers(chatId, context.message?.chat.firstName, context.message?.chat.lastName, context.message?.chat.username)
+            else { return false }
         context.respondSync("@\(bot.username) запущен. Для остановки наберите /stop")
         return true
     }
@@ -39,7 +46,7 @@ class Controller {
         }
         
         guard db.deleteRowUsers(chatId) else { return false }
-        context.respondSync("@\(bot.username) остановлен. Для запуска наберите /start")
+        context.respondSync("@\(bot.username) остановлен. Для запуска наберите /start  <пароль регистрации>")
         return true
     }
     
@@ -69,6 +76,7 @@ class Controller {
         let locateName: String? = db.getLocationUsersName(locateUser)
         
         let allUsers = users.filter(id != chatId).filter(location == locateUser)
+        var button = InlineKeyboardButton()
         
         do {
             guard try connect.scalar(allUsers.count) != 0 else {
@@ -77,12 +85,20 @@ class Controller {
             }
             
             for user in try connect.prepare(allUsers) {
-                arrayUser.append(["id" : user[id] as AnyObject, "name" : ((user[first_name] ?? "") + " " + (user[last_name] ?? "")) as AnyObject])
+                arrayUser.append(["id" : user[id] as AnyObject, "first_name" : ((user[first_name] ?? "")) as AnyObject,
+                                  "last_name" : ((user[last_name] ?? "")) as AnyObject,
+                                  "username" : ((user[username] ?? "")) as AnyObject])
             }
             toId = arrayUser.randomElement()!
+            button.text = "Перейти в чат к: \(toId["first_name"] as! String) \(toId["last_name"] as! String)"
+            button.url = "t.me/\(toId["username"] as! String)"
+            var markup = InlineKeyboardMarkup()
+            let keyboard = [[button]]
+            markup.inlineKeyboard = keyboard
             
-            context.respondAsync("Вы выбрали выпить кофе с : <\(toId["name"] as! String)> дождитесь от него ответа")
-            bot.forwardMessageAsync(chatId: chatId, fromChatId: toId["id"] as! Int64, messageId: context.message!.messageId)
+            context.respondAsync("Вы выбрали выпить кофе с : *\(toId["first_name"] as! String) \(toId["last_name"] as! String)*",
+                                    parseMode: "Markdown", replyMarkup: markup)
+    
             bot.forwardMessageAsync(chatId: toId["id"] as! Int64, fromChatId: chatId, messageId: context.message!.messageId)
         }
         catch {
@@ -106,7 +122,6 @@ class Controller {
 
         context.respondAsync("Нажмите кнопку для связи с поддержкой *EspressoBot Support*.",
                              parseMode: "Markdown", replyMarkup: markup)
-
         return true
     }
     

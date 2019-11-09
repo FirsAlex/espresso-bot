@@ -10,10 +10,9 @@ import TelegramBotSDK
 import SQLite
 
 ///Users/alexander/Desktop/espresso-bot/ESPRESSO_BOT_TOKEN"
-//var path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/"
-//\(path)/ESPRESSO_BOT_TOKEN"
+var path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/ESPRESSO_BOT_TOKEN"
 //Добавлена переменная окружения
-let token = readToken(from: "ESPRESSO_BOT_TOKEN")
+let token = readToken(from: path)
 
 let bot = TelegramBot(token: token)
 let controller = Controller(bot: bot)
@@ -43,7 +42,9 @@ let users = Table("users")
 let id = Expression<Int64>("id")
 let first_name = Expression<String?>("first_name")
 let last_name = Expression<String?>("last_name")
+let username = Expression<String?>("username")
 let location = Expression<Int64>("location")
+let time = Expression<Int64>("time")
 
 let locations = Table("reference_locations")
 let code = Expression<Int64>("code")
@@ -53,7 +54,9 @@ try connect.run(users.create(ifNotExists: true) { t in
     t.column(id, primaryKey: true)
     t.column(first_name)
     t.column(last_name)
+    t.column(username)
     t.column(location)
+    --t.column(time)
 })
 try connect.run(locations.create(ifNotExists: true) { t in
     t.column(code, primaryKey: true)

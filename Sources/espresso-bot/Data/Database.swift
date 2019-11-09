@@ -14,8 +14,8 @@ class Database {
     
     init(){
         do {
-            //let dbPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/DB.db"
-            self.connection = try Connection("/app/DB.db")
+            let dbPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/DB.db"
+            self.connection = try Connection(dbPath)
         } catch {
             self.connection = nil
             let nserror = error as NSError
@@ -23,9 +23,10 @@ class Database {
         }
     }
     
-    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vCodeLocation: Int64 = 0) -> Bool {
+    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vUserName: String?,_ vCodeLocation: Int64 = 0) -> Bool {
         do {
-            try connect.run(users.insert(id <- vId, first_name <- vFirst_name, last_name <- vLast_name, location <- vCodeLocation))
+            try connect.run(users.insert(id <- vId, first_name <- vFirst_name, last_name <- vLast_name, username <- vUserName,
+                                         location <- vCodeLocation))
             return true
         } catch let Result.error(message, code, nil) {
             print("Failed addRowUsers: \(message), code: \(code)")
