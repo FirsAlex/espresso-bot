@@ -13,6 +13,7 @@ import SQLite
 var path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/ESPRESSO_BOT_TOKEN"
 //Добавлена переменная окружения
 let token = readToken(from: path)
+//let token = readToken(from: "/app/ESPRESSO_BOT_TOKEN") // Remote server
 
 let bot = TelegramBot(token: token)
 let controller = Controller(bot: bot)

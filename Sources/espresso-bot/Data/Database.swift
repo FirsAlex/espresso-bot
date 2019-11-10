@@ -16,6 +16,8 @@ class Database {
         do {
             let dbPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/DB.db"
             self.connection = try Connection(dbPath)
+            //self.connection = try Connection("/app/DB") // Remote server
+            
         } catch {
             self.connection = nil
             let nserror = error as NSError
