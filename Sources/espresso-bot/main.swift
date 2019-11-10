@@ -9,11 +9,24 @@ import Foundation
 import TelegramBotSDK
 import SQLite
 
-///Users/alexander/Desktop/espresso-bot/ESPRESSO_BOT_TOKEN"
+///Localhost
 var path = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/ESPRESSO_BOT_TOKEN"
+var pathPasswordU: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/PASSWORDU"
+var pathPasswordA: String = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first! + "/PASSWORDA"
+//Пароль пользователя по умолчанию
+var PasswordUsers: String = readToken(from: pathPasswordU)
+//Пароль администратора по умолчанию
+var PasswordAdmin: String = readToken(from: pathPasswordA)
 //Добавлена переменная окружения
 let token = readToken(from: path)
-//let token = readToken(from: "/app/ESPRESSO_BOT_TOKEN") // Remote server
+
+// Remote server
+//Добавлена переменная окружения
+//let token = readToken(from: "/app/ESPRESSO_BOT_TOKEN")
+//Пароль администратора по умолчанию
+//var PasswordAdmin: String = readToken(from: "/app/PASSWORDA")
+//Пароль пользователя по умолчанию
+//var PasswordUsers: String = readToken(from: "/app/PASSWORDU")
 
 let bot = TelegramBot(token: token)
 let controller = Controller(bot: bot)

@@ -7,9 +7,6 @@
 
 import Foundation
 
-var PasswordUsers: String = ""
-let PasswordAdmin: String = "777"
-
 struct Commands {
     static let start = "start"
     static let stop = "stop"
