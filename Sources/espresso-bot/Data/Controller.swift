@@ -18,7 +18,8 @@ class Controller {
     
     func start(context: Context) -> Bool {
         let words = context.args.scanWords()
-        if !((words.count == 1)  && (words[0] == Password)) {
+        if !((words.count == 1)  && (words[0] == PasswordUsers)) {
+            context.respondAsync("Некорректно ведена команда при регистрации!")
             guard help(context: context) else { return false }
             return true
         }
@@ -56,6 +57,18 @@ class Controller {
         return true
     }
     
+    func admin(context: Context) -> Bool {
+        let words = context.args.scanWords()
+        if (words.count == 2)  && (words[0] == PasswordAdmin) {
+           PasswordUsers = words[1]
+           context.respondSync("Для бота @\(bot.username) установлен пароль регистрации пользователя \(words[1])")
+        }
+        else {context.respondAsync("Синтаксис для задания пароля для регистрации пользователей:\n" +
+                                    "admin <пароль администратора> <новый пароль для регистрации пользователя>")}
+        
+        return true
+    }
+    
     func help(context: Context) -> Bool {
         let text = "Вы можете использовать пункты меню или набрать одну из команд:\n" +
             "/start <пароль регистрации> - для запуска бота\n" +
@@ -77,8 +90,12 @@ class Controller {
         let locateUser: Int64 = db.getLocationUsersCode(chatId)
         let locateName: String? = db.getLocationUsersName(locateUser)
         let timeUser: String? = db.getCofeTime(chatId)
+        let firstName: String = (context.message?.chat.firstName)!
+        let lastName: String = (context.message?.chat.lastName ?? "")
         
         var button = InlineKeyboardButton()
+        var markup = InlineKeyboardMarkup()
+        var keyboard = [[InlineKeyboardButton]]()
         
         var allUsers = users.filter(id != chatId).filter(location == locateUser)
         
@@ -97,17 +114,20 @@ class Controller {
                                       "username" : ((user[username] ?? "")) as AnyObject])
                 }
                 toId = arrayUser.randomElement()!
+                
                 button.text = "Перейти в чат к: \(toId["first_name"] as! String) \(toId["last_name"] as! String)"
                 button.url = "t.me/\(toId["username"] as! String)"
-                var markup = InlineKeyboardMarkup()
-                let keyboard = [[button]]
+                keyboard = [[button]]
                 markup.inlineKeyboard = keyboard
-                
                 context.respondAsync("Вы выбрали выпить кофе с : *\(toId["first_name"] as! String) \(toId["last_name"] as! String)*",
                 parseMode: "Markdown", replyMarkup: markup)
-                bot.forwardMessageAsync(chatId: toId["id"] as! Int64, fromChatId: chatId, messageId: context.message!.messageId)
-                bot.sendMessageAsync(chatId: toId["id"] as! Int64, text: timeUser ?? "В любое время")
-            
+                
+                button.text = "Перейти в чат к: \(firstName) \(lastName)"
+                button.url = "t.me/\(context.message?.chat.username ?? "")"
+                keyboard = [[button]]
+                markup.inlineKeyboard = keyboard
+                bot.sendMessageAsync(chatId: toId["id"] as! Int64, disableNotification: false, parseMode: "Markdown", replyMarkup: markup,
+                                     text: "*\(firstName) \(lastName)* предлагает *\(timeUser ?? "В любое время")* выпить кофе")
             }
             else {
                 context.respondAsync("В вашей локации '\(locateName ?? "<нет локации у пользователя>")' нет подписчиков ")
@@ -116,7 +136,7 @@ class Controller {
                 
         }
         catch {
-            print("Failed out list Users")
+            print("Fail add(context: Context)")
             return false
         }
                 
