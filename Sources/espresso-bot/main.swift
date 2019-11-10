@@ -22,6 +22,7 @@ let router = Router(bot: bot)
 
 router[Commands.start] = controller.start
 router[Commands.stop] = controller.stop
+router[Commands.admin] = controller.admin
 router[Commands.help] = controller.help
 router[Commands.support] = controller.support
 router[Commands.list] = controller.list
@@ -37,7 +38,7 @@ router.partialMatch = controller.partialMatchHandler
 
 let db = Database()
 let connect = db.connection!
-connect.busyTimeout = 5
+connect.busyTimeout = 10
 var i: Int64 = 1
 
 let users = Table("users")

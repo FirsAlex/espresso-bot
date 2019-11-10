@@ -7,11 +7,13 @@
 
 import Foundation
 
-let Password: String = "12345"
+var PasswordUsers: String = ""
+let PasswordAdmin: String = "777"
 
 struct Commands {
     static let start = "start"
     static let stop = "stop"
+    static let admin = "admin"
     static let help = ["ℹ️ Помощь", "help"]
     static let add = ["☕ Выпить кофе", "add"]
     static let list = ["🌐 Выбрать локацию", "list"]
@@ -37,4 +39,5 @@ let timeListName: [String] = ["Сейчас",
 "В течение получаса",
 "Через час",
 "Завтра",
-"Послезавтра"]
+"Послезавтра",
+"В любое время"]

@@ -25,7 +25,7 @@ class Database {
         }
     }
     
-    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vUserName: String?,_ vCodeLocation: Int64 = 0,_ vTime: String? = nil) -> Bool {
+    func addRowUsers(_ vId: Int64,_ vFirst_name: String?,_ vLast_name: String?,_ vUserName: String?,_ vCodeLocation: Int64 = 0,_ vTime: String? = timeListName[5]) -> Bool {
         do {
             try connect.run(users.insert(id <- vId, first_name <- vFirst_name, last_name <- vLast_name, username <- vUserName,
                                          location <- vCodeLocation, time <- vTime))
